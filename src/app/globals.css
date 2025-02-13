@@ -2,20 +2,57 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+body {
+  background: radial-gradient(
+      52.52% 32.71% at 50% 97.66%,
+      rgba(36, 160, 181, 0.2) 0%,
+      rgba(36, 160, 181, 0) 100%
+    ),
+    #02191d;
+  background-repeat: no-repeat;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.radial {
+  background: radial-gradient(
+      103.64% 57.39% at 14.02% 32.06%,
+      rgba(36, 160, 181, 0.2) 0%,
+      rgba(36, 160, 181, 0) 100%
+    ),
+    rgba(10, 12, 17, 0.1);
+}
+
+.ticket {
+  background: radial-gradient(
+      50% 36.17% at 50% 103.25%,
+      rgba(36, 160, 181, 0.5) 0%,
+      rgba(36, 160, 181, 0) 100%
+    ),
+    radial-gradient(
+      50% 13.92% at 50% 0%,
+      rgba(36, 160, 181, 0.5) 0%,
+      rgba(36, 160, 181, 0) 100%
+    ),
+    #072c31;
+}
+
+/* .ticket::before {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: white;
+  border-radius: 50%;
+  top: -10px;
+  left: -10px;
+} */
+
+@media screen and (max-width: 767px) {
+  body {
+    background: #02191d;
+    background-repeat: no-repeat;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+.formPage {
+  @apply md:max-w-[700px] w-full mx-auto border border-primary-800;
 }
