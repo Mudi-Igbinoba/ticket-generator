@@ -32,7 +32,7 @@ export default function StageOne({
   progress: number;
   stage: number;
 
-  setStage: Dispatch<SetStateAction<number>>;
+  setStage: Dispatch<SetStateAction<number | null>>;
 }) {
   const savedForm =
     typeof window !== 'undefined' ? localStorage.getItem('form1') : null;

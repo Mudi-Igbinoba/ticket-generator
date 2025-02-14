@@ -12,7 +12,7 @@ export default function StageThree({
 }: {
   progress: number;
   stage: number;
-  setStage: Dispatch<SetStateAction<number>>;
+  setStage: Dispatch<SetStateAction<number | null>>;
 }) {
   const [formOne, setFormOne] = useState<{
     ticketType: string;

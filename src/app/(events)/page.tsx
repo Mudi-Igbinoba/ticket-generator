@@ -5,23 +5,35 @@ import StageTwo from '@/components/ui/StageTwo';
 import StageThree from '@/components/ui/StageThree';
 
 export default function EventsPage() {
-  const [stage, setStage] = useState(
-    typeof window !== 'undefined'
-      ? Number(localStorage.getItem('currentStage'))
-      : 1
-  );
+  const [stage, setStage] = useState<number | null>(null);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const num = (stage / 3) * 100;
-      setProgress(num);
-    }, 500);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('currentStage', String(stage));
+      const savedStage = localStorage.getItem('currentStage');
+      if (savedStage) {
+        setStage(Number(savedStage));
+      } else {
+        setStage(1);
+      }
     }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && stage !== null) {
+      localStorage.setItem('currentStage', stage.toString());
+    }
+
+    const timer = setTimeout(() => {
+      setProgress(((stage ?? 1) / 3) * 100);
+    }, 500);
+
     return () => clearTimeout(timer);
   }, [stage]);
+
+  if (stage === null) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>

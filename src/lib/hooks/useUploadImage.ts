@@ -26,6 +26,7 @@ export function useUploadImage() {
       return data.url;
     } catch (error) {
       console.error('Upload error:', error);
+      alert('Upload error: Invalid image type');
       return null;
     } finally {
       setLoading(false);

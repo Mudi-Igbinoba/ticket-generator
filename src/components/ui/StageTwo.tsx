@@ -30,7 +30,7 @@ export default function StageTwo({
 }: {
   progress: number;
   stage: number;
-  setStage: Dispatch<SetStateAction<number>>;
+  setStage: Dispatch<SetStateAction<number | null>>;
 }) {
   const { imageURL, uploadImage, loading } = useUploadImage();
 
@@ -76,7 +76,7 @@ export default function StageTwo({
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: { 'image/*': ['.png', '.jpg', '.jpeg'] },
+    accept: { 'image/*': ['.png', '.jpg', '.jpeg', 'gif'] },
     maxSize: 10 * 1024 * 1024,
     multiple: false
   });
@@ -191,7 +191,7 @@ export default function StageTwo({
                       )}
                     >
                       {loading ? (
-                        <Spinner />
+                        <Spinner className='size-10' />
                       ) : (
                         <>
                           <Image

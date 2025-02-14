@@ -1,11 +1,14 @@
-export default function Spinner() {
+import { SVGProps } from 'react';
+
+export default function Spinner(props: SVGProps<SVGSVGElement>) {
   return (
     <div className='mx-auto  w-full'>
       <svg
-        className='animate-spin -ml-1 mr-3 size-10 text-primary-200'
+        className='animate-spin -ml-1 mr-3 text-primary-200'
         xmlns='http://www.w3.org/2000/svg'
         fill='none'
         viewBox='0 0 24 24'
+        {...props}
       >
         <circle
           className='opacity-25'
