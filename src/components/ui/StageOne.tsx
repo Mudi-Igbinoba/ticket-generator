@@ -42,8 +42,8 @@ export default function StageOne({
     defaultValues: savedForm
       ? JSON.parse(savedForm)
       : {
-          ticketType: '',
-          numberOfTickets: ''
+          ticketType: 'Regular',
+          numberOfTickets: '1'
         }
   });
 
@@ -54,12 +54,17 @@ export default function StageOne({
 
   function onReset(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    form.reset();
+    form.reset({
+      ticketType: 'Regular',
+      numberOfTickets: '1'
+    });
   }
 
   const handleChange = () => {
     const updatedValues = form.getValues();
-    localStorage.setItem('form1', JSON.stringify(updatedValues));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('form1', JSON.stringify(updatedValues));
+    }
     console.log('Saved to LocalStorage:', updatedValues);
   };
 
@@ -83,7 +88,7 @@ export default function StageOne({
   useEffect(() => {
     if (savedForm) {
       form.reset(JSON.parse(savedForm));
-    } else {
+    } else if (typeof window !== 'undefined') {
       localStorage.setItem('form1', JSON.stringify(form.getValues()));
     }
   }, []);

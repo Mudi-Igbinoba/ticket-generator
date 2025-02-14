@@ -6,7 +6,9 @@ import StageThree from '@/components/ui/StageThree';
 
 export default function EventsPage() {
   const [stage, setStage] = useState(
-    Number(localStorage.getItem('currentStage') || 1)
+    typeof window !== 'undefined'
+      ? Number(localStorage.getItem('currentStage'))
+      : 1
   );
   const [progress, setProgress] = useState(0);
 
@@ -15,9 +17,9 @@ export default function EventsPage() {
       const num = (stage / 3) * 100;
       setProgress(num);
     }, 500);
-
-    localStorage.setItem('currentStage', String(stage));
-
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('currentStage', String(stage));
+    }
     return () => clearTimeout(timer);
   }, [stage]);
 

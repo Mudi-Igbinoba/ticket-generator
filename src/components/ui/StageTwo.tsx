@@ -65,10 +65,12 @@ export default function StageTwo({
     const uploadedUrl = await uploadImage(selectedFile);
     if (uploadedUrl) {
       form.setValue('image', uploadedUrl, { shouldValidate: true });
-      localStorage.setItem(
-        'form2',
-        JSON.stringify({ ...form.getValues(), image: uploadedUrl })
-      );
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(
+          'form2',
+          JSON.stringify({ ...form.getValues(), image: uploadedUrl })
+        );
+      }
     }
   };
 
@@ -86,10 +88,12 @@ export default function StageTwo({
       const uploadedUrl = await uploadImage(selectedFile);
       if (uploadedUrl) {
         form.setValue('image', uploadedUrl, { shouldValidate: true });
-        localStorage.setItem(
-          'form2',
-          JSON.stringify({ ...form.getValues(), image: uploadedUrl })
-        );
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(
+            'form2',
+            JSON.stringify({ ...form.getValues(), image: uploadedUrl })
+          );
+        }
       }
     }
   };
@@ -100,7 +104,9 @@ export default function StageTwo({
       form.reset(parsedForm);
     }
     const subscription = form.watch((values) => {
-      localStorage.setItem('form2', JSON.stringify(values));
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('form2', JSON.stringify(values));
+      }
     });
 
     return () => subscription.unsubscribe();

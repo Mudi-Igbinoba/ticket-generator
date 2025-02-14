@@ -26,8 +26,10 @@ export default function StageThree({
   }>();
 
   useEffect(() => {
-    const form1 = localStorage.getItem('form1');
-    const form2 = localStorage.getItem('form2');
+    const form1 =
+      typeof window !== 'undefined' ? localStorage.getItem('form1') : null;
+    const form2 =
+      typeof window !== 'undefined' ? localStorage.getItem('form2') : null;
 
     if (form1) {
       setFormOne(JSON.parse(form1));
@@ -39,10 +41,11 @@ export default function StageThree({
   }, []);
 
   function goBack() {
-    localStorage.removeItem('imageUrl');
-    localStorage.removeItem('form1');
-    localStorage.removeItem('form2');
-
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('imageUrl');
+      localStorage.removeItem('form1');
+      localStorage.removeItem('form2');
+    }
     setStage(1);
   }
 
