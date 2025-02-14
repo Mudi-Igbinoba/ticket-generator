@@ -54,10 +54,7 @@ export default function StageOne({
 
   function onReset(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    form.reset({
-      ticketType: '',
-      numberOfTickets: ''
-    });
+    form.reset();
   }
 
   const handleChange = () => {
