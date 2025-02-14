@@ -5,7 +5,9 @@ import StageTwo from '@/components/ui/StageTwo';
 import StageThree from '@/components/ui/StageThree';
 
 export default function EventsPage() {
-  const [stage, setStage] = useState(1);
+  const [stage, setStage] = useState(
+    Number(localStorage.getItem('currentStage') || 1)
+  );
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -13,6 +15,8 @@ export default function EventsPage() {
       const num = (stage / 3) * 100;
       setProgress(num);
     }, 500);
+
+    localStorage.setItem('currentStage', String(stage));
 
     return () => clearTimeout(timer);
   }, [stage]);

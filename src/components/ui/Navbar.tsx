@@ -35,28 +35,27 @@ export default function Navbar() {
   const pathname = usePathname();
   return (
     <header className='md:mx-0 mx-[3.5px] px-4 py-3 w-full md:rounded-3xl rounded-xl border border-primary-300 bg-primary-900 flex items-center justify-between backdrop-blur-[2px]'>
-      <Image
-        src='/assets/images/logo.svg'
-        alt='Logo'
-        width={92}
-        height={36}
-        priority
-      />
+      <Link href='/'>
+        <Image
+          src='/assets/images/logo.svg'
+          alt='Logo'
+          width={92}
+          height={36}
+          priority
+        />
+      </Link>
 
       <NavigationMenu className='md:inline-block hidden'>
         <NavigationMenuList>
-          {components.map((link, i) => (
+          {components.map((link) => (
             <NavigationMenuItem className='p-2.5 ' key={link.title}>
               <Link href={link.href} legacyBehavior passHref>
                 <NavigationMenuLink
-                  aria-disabled={i !== 0}
-                  tabIndex={i !== 0 ? -1 : undefined}
                   className={clsx(
                     `${navigationMenuTriggerStyle()} duration-300 ease-in-out hover:text-primary-200 focus:text-primary-200`,
                     {
                       'text-white': pathname === link.href,
-                      'text-[#B3B3B3]': pathname !== link.href,
-                      'pointer-events-none': i !== 0
+                      'text-[#B3B3B3]': pathname !== link.href
                     }
                   )}
                 >

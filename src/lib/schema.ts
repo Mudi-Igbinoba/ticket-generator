@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const formOneSchema = z.object({
   numberOfTickets: z.string().min(1, 'Please select the number of tickets'),
-  ticketType: z.enum(['regular', 'vip', 'vvip'], {
+  ticketType: z.enum(['Regular', 'VIP', 'VVIP'], {
     errorMap: () => ({ message: 'Please select a ticket type' })
   })
 });

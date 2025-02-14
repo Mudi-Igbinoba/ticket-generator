@@ -19,15 +19,9 @@ export default function RootLayout({
       className={`${roboto.className} ${roboto.variable} ${alatsi.variable} antialiased text-white min-h-screen`}
     >
       <body className='min-h-[inherit] 2md:px-[120px] md:px-14 px-5 md:pt-6 pt-2.5 md:pb-28 pb-[42px] md:space-y-[46px] space-y-[18px]'>
-        {/* 
-
-        <Button>Get My Free Ticket</Button>
-
-        <Button variant='outline'>Get My Free Ticket</Button> */}
-
         <Navbar />
 
-        {children}
+        <main>{children}</main>
       </body>
     </html>
   );

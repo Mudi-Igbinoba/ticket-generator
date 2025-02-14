@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Progress } from './progress';
 import { jeju, roadRage } from '@/lib/fonts';
 import Ticket from './ticket';
@@ -14,14 +14,50 @@ export default function StageThree({
   stage: number;
   setStage: Dispatch<SetStateAction<number>>;
 }) {
+  const [formOne, setFormOne] = useState<{
+    ticketType: string;
+    numberOfTickets: string;
+  }>();
+  const [formTwo, setFormTwo] = useState<{
+    image: string;
+    name: string;
+    email: string;
+    request: string;
+  }>();
+
+  useEffect(() => {
+    const form1 = localStorage.getItem('form1');
+    const form2 = localStorage.getItem('form2');
+
+    if (form1) {
+      setFormOne(JSON.parse(form1));
+    }
+
+    if (form2) {
+      setFormTwo(JSON.parse(form2));
+    }
+  }, []);
+
+  function goBack() {
+    localStorage.removeItem('imageUrl');
+    localStorage.removeItem('form1');
+    localStorage.removeItem('form2');
+
+    setStage(1);
+  }
+
   return (
     <section className='formPage md:py-12   py-8 bg-primary-700 space-y-8 rounded-3xl text-center'>
       <div className='space-y-3 md:px-12 px-6'>
-        <div className='flex gap-3 xs:flex-row flex-col xs:items-center justify-between'>
+        <div className='flex gap-3 flex-row items-center justify-between'>
           <h1 className={`${jeju.className} md:text-[32px] text-2xl`}>Ready</h1>
           <p className='leading-normal text-zinc-50'>Step {stage}/3</p>
         </div>
-        <Progress value={progress} />
+        <Progress
+          aria-label='progress-66%'
+          aria-labelledby='progress-66%'
+          value={progress}
+        />
       </div>
 
       <div className='md:px-12 px-6 md:space-y-4 space-y-3 text-zinc-50'>
@@ -56,22 +92,31 @@ export default function StageThree({
               </div>
             </div>
 
-            <div className='size-[140px] mx-auto border-4 rounded-xl border-primary-200/50 bg-transparent'></div>
+            <div
+              className='size-[140px] mx-auto border-4 rounded-xl border-primary-200/50 bg-transparent bg-cover'
+              style={{
+                backgroundImage: formTwo?.image
+                  ? `url(${formTwo?.image})`
+                  : 'none'
+              }}
+            ></div>
 
-            <div className='flex-1 p-1 rounded-lg bg-primary-1500 border text-start border-primary-1600 grid grid-cols-2 '>
-              <div className='space-y-1 p-1 border-b border-primary-1300'>
-                <h4 className='text-white/[0.33] text-[10px] leading-normal'>
+            <div className='flex-1 p-1 rounded-lg bg-primary-1500 border text-start border-primary-1600 grid  grid-cols-2 '>
+              <div className='space-y-1  p-1 border-b border-primary-1300'>
+                <h4 className='text-white/[0.33] text-[10px] leading-normal '>
                   Enter your name
                 </h4>
-                <p className='text-xs font-bold leading-normal'>Avi Chukwu</p>
+                <p className='text-xs font-bold leading-normal break-words	'>
+                  {formTwo?.name || '---'}
+                </p>
               </div>
 
               <div className='space-y-1 p-1 pl-3 border-b border-l border-primary-1300'>
                 <h4 className='text-white/[0.33] text-[10px] leading-normal'>
                   Enter your email *
                 </h4>
-                <p className='text-xs font-bold leading-normal'>
-                  User@email.com
+                <p className='text-xs font-bold leading-normal 	break-words'>
+                  {formTwo?.email || '---'}
                 </p>
               </div>
 
@@ -79,22 +124,23 @@ export default function StageThree({
                 <h4 className='text-white/[0.33]  leading-normal'>
                   Ticket Type:
                 </h4>
-                <p className=' leading-normal'>Vip</p>
+                <p className='leading-normal'>{formOne?.ticketType || '---'}</p>
               </div>
 
               <div className='space-y-1 p-1 pl-3 border-b border-l border-primary-1300 text-[10px]'>
                 <h4 className='text-white/[0.33]  leading-normal'>
                   Ticket for :
                 </h4>
-                <p className=' leading-normal'>1</p>
+                <p className=' leading-normal'>
+                  {formOne?.numberOfTickets || '---'}
+                </p>
               </div>
               <div className='space-y-1 p-2 text-[10px] col-span-2'>
                 <h4 className='text-white/[0.33]  leading-normal'>
                   Special request?
                 </h4>
-                <p className=' leading-normal'>
-                  Nil ? Or the users sad story they write in there gets this
-                  whole space, Max of three rows
+                <p className=' leading-normal break-words'>
+                  {formTwo?.request || '---'}
                 </p>
               </div>
             </div>
@@ -122,13 +168,20 @@ export default function StageThree({
         <Button
           variant='outline'
           type='button'
-          onClick={() => setStage(1)}
+          onClick={goBack}
           className='flex-1'
         >
           Book Another Ticket
         </Button>
 
-        <Button variant='default' type='button' className='flex-1'>
+        <Button
+          variant='default'
+          onClick={() => {
+            alert('This feature will be available in version 2.0 ✌️');
+          }}
+          type='button'
+          className='flex-1'
+        >
           Download Ticket
         </Button>
       </div>

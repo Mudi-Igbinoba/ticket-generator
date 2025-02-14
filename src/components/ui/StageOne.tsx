@@ -1,13 +1,7 @@
 import { jeju, roadRage } from '@/lib/fonts';
 import { formOneSchema } from '@/lib/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Dispatch,
-  FormEvent,
-  SetStateAction,
-  useEffect,
-  useState
-} from 'react';
+import { Dispatch, FormEvent, SetStateAction, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Progress } from './progress';
@@ -48,8 +42,8 @@ export default function StageOne({
     defaultValues: savedForm
       ? JSON.parse(savedForm)
       : {
-          ticketType: 'regular',
-          numberOfTickets: '1'
+          ticketType: '',
+          numberOfTickets: ''
         }
   });
 
@@ -61,8 +55,8 @@ export default function StageOne({
   function onReset(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     form.reset({
-      ticketType: 'regular',
-      numberOfTickets: '1'
+      ticketType: '',
+      numberOfTickets: ''
     });
   }
 
@@ -74,24 +68,24 @@ export default function StageOne({
 
   const options = [
     {
-      type: 'regular',
+      type: 'Regular',
       price: 'Free'
     },
 
     {
-      type: 'vip',
+      type: 'VIP',
       price: '$150'
     },
 
     {
-      type: 'vvip',
+      type: 'VVIP',
       price: '$150'
     }
   ];
 
   useEffect(() => {
     if (savedForm) {
-      form.reset(JSON.parse(savedForm)); // Restore saved values
+      form.reset(JSON.parse(savedForm));
     } else {
       localStorage.setItem('form1', JSON.stringify(form.getValues()));
     }
@@ -107,7 +101,11 @@ export default function StageOne({
           <p className='leading-normal text-zinc-50'>Step {stage}/3</p>
         </div>
 
-        <Progress value={progress} />
+        <Progress
+          aria-label='progress-33%'
+          aria-labelledby='progress-33%'
+          value={progress}
+        />
       </div>
 
       <div className='md:p-6 p-0 space-y-8 rounded-[32px] md:bg-primary-400 bg-transparent md:border border-none border-primary-800 text-center'>
@@ -153,7 +151,7 @@ export default function StageOne({
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       value={field.value}
-                      className='flex md:gap-[18px] gap-4 2md:flex-row flex-col items-center justify-between p-4 bg-primary-1100 border border-primary-1000 rounded-3xl'
+                      className='flex md:gap-[18px] gap-4 2md:flex-row flex-col items-center justify-between p-4 bg-primary-1100 border border-primary-1000 rounded-3xl aria-[invalid=true]:border-red-400'
                     >
                       {options.map((option) => (
                         <FormItem key={option.type} className='flex-1 w-full'>
@@ -211,7 +209,7 @@ export default function StageOne({
                         <SelectValue placeholder='Select the number of tickets you want' />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent position='item-aligned' sideOffset={0}>
                       {Array(5)
                         .fill(0)
                         .map((e, index) => (

@@ -1,13 +1,6 @@
 'use client';
 import { jeju } from '@/lib/fonts';
-import {
-  ChangeEvent,
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState
-} from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import { Progress } from './progress';
 import {
   Form,
@@ -27,6 +20,8 @@ import clsx from 'clsx';
 import { Button } from './button';
 import { Input } from './input';
 import { Textarea } from './textarea';
+import { useUploadImage } from '@/lib/hooks/useUploadImage';
+import Spinner from './spinner';
 
 export default function StageTwo({
   progress,
@@ -37,13 +32,11 @@ export default function StageTwo({
   stage: number;
   setStage: Dispatch<SetStateAction<number>>;
 }) {
-  const [file, setFile] = useState<File | null>(null);
-  const [imageURL, setImageURL] = useState('');
+  const { imageURL, uploadImage, loading } = useUploadImage();
 
   const savedForm =
     typeof window !== 'undefined' ? localStorage.getItem('form2') : null;
-
-  const image =
+  const savedImage =
     typeof window !== 'undefined' ? localStorage.getItem('imageUrl') : null;
 
   const form = useForm<z.infer<typeof formTwoSchema>>({
@@ -51,7 +44,7 @@ export default function StageTwo({
     defaultValues: savedForm
       ? JSON.parse(savedForm)
       : {
-          image: image || '',
+          image: savedImage || '',
           name: '',
           email: '',
           request: ''
@@ -60,7 +53,6 @@ export default function StageTwo({
 
   function onSubmit(values: z.infer<typeof formTwoSchema>) {
     console.log('Form values:', values);
-    console.log('Image type:', values.image instanceof File);
     setStage(3);
   }
 
@@ -68,82 +60,50 @@ export default function StageTwo({
     setStage(1);
   }
 
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      const selectedFile = acceptedFiles[0];
-
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-      formData.append('upload_preset', 'ticket');
-
-      fetch('https://api.cloudinary.com/v1_1/drl0zzfsj/upload', {
-        method: 'POST',
-        body: formData
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log('Cloudinary response:', data);
-          setImageURL(data.url);
-          localStorage.setItem('imageUrl', data.url);
-
-          // Update the form state
-          const updatedValues = { ...form.getValues(), image: data.url };
-          localStorage.setItem('form2', JSON.stringify(updatedValues));
-          form.setValue('image', data.url, { shouldValidate: true });
-        })
-        .catch((error) => console.error('Upload error:', error));
-    },
-
-    [form]
-  );
+  const onDrop = async (acceptedFiles: File[]) => {
+    const selectedFile = acceptedFiles[0];
+    const uploadedUrl = await uploadImage(selectedFile);
+    if (uploadedUrl) {
+      form.setValue('image', uploadedUrl, { shouldValidate: true });
+      localStorage.setItem(
+        'form2',
+        JSON.stringify({ ...form.getValues(), image: uploadedUrl })
+      );
+    }
+  };
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: { 'image/*': ['.png', '.jpg', '.jpeg'] },
-    maxSize: 10 * 1024 * 1024
+    maxSize: 10 * 1024 * 1024,
+    multiple: false
   });
 
-  const handleChange = (event: any) => {
-    const updatedValues = { ...form.getValues(), image: imageURL };
-    localStorage.setItem('form2', JSON.stringify(updatedValues));
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleFileChange = async (event: any) => {
     const selectedFile = event.target.files?.[0];
-    if (!imageURL) {
-      setFile(selectedFile);
-      form.setValue('image', selectedFile, { shouldValidate: true });
-
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-      formData.append('upload_preset', 'ticket');
-
-      fetch('https://api.cloudinary.com/v1_1/drl0zzfsj/upload', {
-        method: 'POST',
-        body: formData
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log('Cloudinary response:', data);
-          setImageURL(data.url);
-          localStorage.setItem('imageUrl', data.url);
-
-          // Update form state with image URL
-          const updatedValues = { ...form.getValues(), image: data.url };
-          localStorage.setItem('form2', JSON.stringify(updatedValues));
-        })
-        .catch((error) => console.error('Upload error:', error));
+    if (selectedFile) {
+      const uploadedUrl = await uploadImage(selectedFile);
+      if (uploadedUrl) {
+        form.setValue('image', uploadedUrl, { shouldValidate: true });
+        localStorage.setItem(
+          'form2',
+          JSON.stringify({ ...form.getValues(), image: uploadedUrl })
+        );
+      }
     }
   };
 
   useEffect(() => {
     if (savedForm) {
       const parsedForm = JSON.parse(savedForm);
-      form.reset(parsedForm); // Restore form data
+      form.reset(parsedForm);
     }
+    const subscription = form.watch((values) => {
+      localStorage.setItem('form2', JSON.stringify(values));
+    });
 
-    if (image) {
-      setImageURL(image); // Restore the image URL
-      form.setValue('image', image);
-    }
+    return () => subscription.unsubscribe();
   }, []);
 
   return (
@@ -155,7 +115,11 @@ export default function StageTwo({
           </h1>
           <p className='leading-normal text-zinc-50'>Step {stage}/3</p>
         </div>
-        <Progress value={progress} />
+        <Progress
+          aria-label='progress-66%'
+          aria-labelledby='progress-66%'
+          value={progress}
+        />
       </div>
 
       <Form {...form}>
@@ -166,51 +130,76 @@ export default function StageTwo({
           <FormField
             control={form.control}
             name='image'
-            render={({}) => (
+            render={() => (
               <FormItem className='p-6 md:pb-12  border border-primary-1000 rounded-3xl bg-primary-1100 md:space-y-8 space-y-3'>
-                <FormLabel htmlFor='image'>Upload Profile Photo</FormLabel>
+                <FormLabel>Upload Profile Photo</FormLabel>
 
                 <div
                   {...getRootProps()}
-                  className='md:bg-black/20 bg-transparent md:h-[200px] h-auto relative cursor-pointer'
+                  className={clsx(
+                    'md:bg-black/20  bg-transparent md:h-[200px] h-auto relative cursor-pointer',
+                    {
+                      'opacity-50 pointer-events-none': loading
+                    }
+                  )}
                 >
-                  <input
-                    onBlur={handleChange}
+                  <Input
                     id='image'
                     type='file'
                     {...getInputProps()}
+                    onBlur={handleFileChange}
+                    disabled={loading}
+                    aria-describedby=':r8:-form-item-message'
                   />
 
                   <div
                     className={clsx(
-                      'md:absolute md:m-0 mx-auto group md:inset-1/2 md:-translate-x-1/2 md:-translate-y-1/2 min-[380px]:size-60 w-full h-60 rounded-[32px] bg-primary-800 border-4 border-primary-200/50 p-6 flex flex-col justify-center items-center text-center duration-300 ease-in-out'
+                      'md:absolute  md:m-0 mx-auto group md:inset-1/2 md:-translate-x-1/2 md:-translate-y-1/2 min-[380px]:size-60 w-full h-60 rounded-[32px] bg-primary-800 border-4 border-primary-200/50 p-6 flex flex-col justify-center items-center text-center duration-300 ease-in-out'
                     )}
                     style={{
                       backgroundImage: imageURL ? `url(${imageURL})` : 'none',
                       backgroundSize: 'cover',
                       backgroundPosition: 'center'
                     }}
+                    aria-describedby=':r8:-form-item-message'
+                    tabIndex={0}
                   >
-                    <div className='absolute duration-300 ease-in-out rounded-[32px] z-0 inset-0 hidden group-hover:block bg-black/30 w-full'></div>
+                    <div
+                      className={clsx(
+                        'absolute duration-300 ease-in-out rounded-[32px] z-0 inset-0 group-hover:block bg-black/30 w-full',
+                        {
+                          block: loading,
+                          hidden: !loading
+                        }
+                      )}
+                    ></div>
 
                     <div
                       className={clsx(
                         'space-y-4 block z-10 duration-300 ease-in-out ',
                         {
-                          'opacity-0 group-hover:opacity-100 ': imageURL
+                          'opacity-0 group-hover:opacity-100 ':
+                            imageURL && !loading,
+                          'opacity-100 ': loading
                         }
                       )}
                     >
-                      <Image
-                        src='./assets/images/cloud.svg'
-                        alt='cloud icon'
-                        width={32}
-                        height={32}
-                        className='mx-auto duration-300 ease-in-out'
-                      />
-                      <p className='text-zinc-50 leading-normal'>
-                        Drag & drop or click to upload
-                      </p>
+                      {loading ? (
+                        <Spinner />
+                      ) : (
+                        <>
+                          <Image
+                            src='./assets/images/cloud.svg'
+                            alt='cloud icon'
+                            width={32}
+                            height={32}
+                            className='mx-auto duration-300 ease-in-out'
+                          />
+                          <p className='text-zinc-50 leading-normal'>
+                            Drag & drop or click to upload
+                          </p>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -232,8 +221,8 @@ export default function StageTwo({
                   <Input
                     placeholder=''
                     {...field}
-                    onBlur={handleChange}
-                    className='h-12 w-full rounded-xl border border-primary-1000 bg-transparent p-3 text-base text-white'
+                    onBlur={handleFileChange}
+                    className='h-12 w-full rounded-xl border border-primary-1000 bg-transparent p-3 text-base text-white hover:ring-2  hover:ring-primary-200 aria-[invalid=true]:border-red-400'
                   />
                 </FormControl>
 
@@ -249,7 +238,10 @@ export default function StageTwo({
               <FormItem className='space-y-2'>
                 <FormLabel>Enter your email *</FormLabel>
                 <FormControl className=''>
-                  <div className='flex items-center gap-2 h-12 w-full rounded-xl border border-primary-1000 bg-transparent p-3 text-base text-white'>
+                  <div
+                    id='something'
+                    className='flex group duration-300 ease-in-out items-center gap-2 h-12  hover:ring-2  hover:ring-primary-200 w-full rounded-xl border border-primary-1000 bg-transparent p-3 text-base text-white aria-[invalid=true]:border-red-400'
+                  >
                     <Image
                       src='./assets/images/mail.svg'
                       alt='envelope icon'
@@ -260,8 +252,10 @@ export default function StageTwo({
                     <Input
                       placeholder='hello@avioflagos.io'
                       {...field}
-                      onBlur={handleChange}
-                      className='bg-transparent border-none p-0 w-full focus-visible:ring-0 placeholder:text-[#aaa]'
+                      onBlur={handleFileChange}
+                      className='bg-transparent border-none p-0 w-full focus-visible:ring-0 placeholder:text-[#aaa] '
+                      id=':r18:-form-item'
+                      aria-describedby=':ra:-form-item-description :ra:-form-item-message'
                     />
                   </div>
                 </FormControl>
@@ -280,9 +274,9 @@ export default function StageTwo({
                 <FormControl className=''>
                   <Textarea
                     placeholder='Textarea'
-                    className='h-32 resize-none w-full rounded-xl border border-primary-1000 bg-transparent p-3 text-base text-white placeholder:text-[#aaa]'
+                    className='h-32 resize-none w-full rounded-xl border border-primary-1000 bg-transparent p-3 text-base text-white placeholder:text-[#aaa] aria-[invalid=true]:border-red-400 hover:ring-2  hover:ring-primary-200'
                     {...field}
-                    onBlur={handleChange}
+                    onBlur={handleFileChange}
                   />
                 </FormControl>
 
