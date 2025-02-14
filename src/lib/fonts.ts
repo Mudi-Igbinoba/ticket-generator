@@ -4,7 +4,8 @@ import localFont from 'next/font/local';
 export const roboto = Roboto({
   weight: ['100', '300', '400', '500', '700', '900'],
   style: ['normal', 'italic'],
-  variable: '--font-roboto'
+  variable: '--font-roboto',
+  subsets: ['latin']
 });
 
 export const jeju = localFont({
@@ -16,12 +17,14 @@ export const jeju = localFont({
 export const roadRage = Road_Rage({
   weight: '400',
   style: 'normal',
-  display: 'swap'
+  display: 'swap',
+  subsets: ['latin']
 });
 
 export const alatsi = Alatsi({
   weight: '400',
   style: 'normal',
   display: 'swap',
-  variable: '--font-alatsi'
+  variable: '--font-alatsi',
+  subsets: ['latin']
 });
