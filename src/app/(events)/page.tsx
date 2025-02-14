@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import StageOne from '@/components/ui/StageOne';
 import StageTwo from '@/components/ui/StageTwo';
 import StageThree from '@/components/ui/StageThree';
+import Loader from '@/components/ui/loader';
 
 export default function EventsPage() {
   const [stage, setStage] = useState<number | null>(null);
@@ -32,7 +33,7 @@ export default function EventsPage() {
   }, [stage]);
 
   if (stage === null) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   return (

@@ -71,12 +71,25 @@ export default function StageTwo({
           JSON.stringify({ ...form.getValues(), image: uploadedUrl })
         );
       }
+    } else {
+      form.setValue('image', '', { shouldValidate: true });
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(
+          'form2',
+          JSON.stringify({ ...form.getValues(), image: '' })
+        );
+      }
     }
   };
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: { 'image/*': ['.png', '.jpg', '.jpeg', 'gif'] },
+    accept: {
+      'image/png': ['.png'],
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/gif': ['.gif'],
+      'image/svg+xml': ['.svg']
+    },
     maxSize: 10 * 1024 * 1024,
     multiple: false
   });
@@ -191,7 +204,7 @@ export default function StageTwo({
                       )}
                     >
                       {loading ? (
-                        <Spinner className='size-10' />
+                        <Spinner />
                       ) : (
                         <>
                           <Image

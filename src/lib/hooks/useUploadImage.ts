@@ -11,6 +11,7 @@ export function useUploadImage() {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', 'ticket');
+    formData.append('resource_type', 'auto');
 
     try {
       const response = await fetch(
@@ -21,9 +22,16 @@ export function useUploadImage() {
         }
       );
       const data = await response.json();
-      setImageURL(data.url);
-      localStorage.setItem('imageUrl', data.url);
-      return data.url;
+      if (data.url) {
+        setImageURL(data.url);
+        localStorage.setItem('imageUrl', data.url);
+        return data.url;
+      } else {
+        alert('Upload error: ' + data.error.message);
+        setImageURL('');
+        localStorage.setItem('imageUrl', '');
+        return '';
+      }
     } catch (error) {
       console.error('Upload error:', error);
       alert('Upload error: Invalid image type');
